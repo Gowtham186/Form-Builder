@@ -93,12 +93,15 @@ export default function FormComponent({ mode }) {
         try {
             if(Object.keys(errors).length !== 0){
                 setClientErorrs(errors)
+                console.log('errors')
             }else{
                 if (isEditMode) {
+                    console.log('edit')
                     const response = await axios.put(`/api/forms/${id}`, formData);
                     console.log("Form updated", response.data);
                     navigate("/");
                 } else {
+                    console.log('create')
                     const response = await axios.post("/api/forms", formData);
                     console.log("Form created", response.data);
                     navigate("/");
