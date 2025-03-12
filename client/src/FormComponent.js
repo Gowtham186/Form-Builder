@@ -93,7 +93,7 @@ export default function FormComponent({ mode }) {
         try {
             if(Object.keys(errors).length !== 0){
                 setClientErorrs(errors)
-                console.log('errors')
+                console.log('errors', errors)
             }else{
                 if (isEditMode) {
                     console.log('edit')
