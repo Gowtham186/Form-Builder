@@ -34,19 +34,6 @@ export default function FormComponent({ mode }) {
             if (ele.title.trim().length === 0) {
                 errors[`title${i}`] = "Title is required";
             }
-            if (ele.value.trim().length === 0) {
-                errors[`value${i}`] = "This field is required";
-            }
-        
-            if (ele.type === "password" && ele.value.length < 8) {
-                errors[`password${i}`] = "Password must be at least 8 characters";
-            }
-            if (ele.type === "number" && isNaN(ele.value)) {
-                errors[`number${i}`] = "Enter a valid number";
-            }
-            if (ele.type === "date" && !ele.value) {
-                errors[`date${i}`] = "Date is required";
-            }
         });
     }
 
