@@ -65,7 +65,12 @@ formCntlr.singleForm = async(req,res)=>{
 formCntlr.delete = async(req,res)=>{
     const id = req.params.id
     try{
-
+        const form = await Form.findByIdAndDelete(id)
+        if(!form){
+            return res.status(404).json({errors : 'something went wrong'})
+        }
+        console.log(form)
+        res.json(form)
     }catch(err){
         console.log(err)
     }

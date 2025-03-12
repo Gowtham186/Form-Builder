@@ -10,7 +10,7 @@ const formSchema = new Schema({
             },
             type : { 
                 type : String, 
-                enum : ['text', 'email', 'password', 'number', 'data'],
+                enum : ['text', 'email', 'password', 'number', 'date'],
                 required : true
             },
             placeholder : { 

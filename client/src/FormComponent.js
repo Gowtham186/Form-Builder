@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "./config/axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function FormComponent({ mode }) {
     const { id } = useParams();
@@ -14,36 +14,58 @@ export default function FormComponent({ mode }) {
 
     const [openInputs, setOpenInputs] = useState(false);
     const [editField, setEditField] = useState(null);
+    const navigate = useNavigate();
+    const [clientErrors, setClientErorrs] = useState(null)
 
     useEffect(() => {
         if (isViewMode || isEditMode) {
             axios.get(`/api/forms/${id}`)
-                .then(response => {
-                    setFormData(response.data);
-                })
+                .then(response => setFormData(response.data))
                 .catch(err => console.log(err));
         }
     }, [id, mode]);
 
+    const errors = {}
+    const clientValidations = ()=>{
+        if(formData.name.trim().length === 0){
+            errors.name = 'Form name is required'
+        }
+        formData.fields.forEach((ele, i) => {
+            if (ele.title.trim().length === 0) {
+                errors[`title${i}`] = "Title is required";
+            }
+            if (ele.value.trim().length === 0) {
+                errors[`value${i}`] = "This field is required";
+            }
+        
+            if (ele.type === "password" && ele.value.length < 8) {
+                errors[`password${i}`] = "Password must be at least 8 characters";
+            }
+            if (ele.type === "number" && isNaN(ele.value)) {
+                errors[`number${i}`] = "Enter a valid number";
+            }
+            if (ele.type === "date" && !ele.value) {
+                errors[`date${i}`] = "Date is required";
+            }
+        });
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        const invalidFields = formData.fields.filter(field => !field.value?.trim());
-        if (invalidFields.length > 0) {
-            console.log("Some fields are empty!");
-            return;
+        clientValidations()
+        console.log(errors)
+        if(Object.keys(errors).length !== 0){
+            setClientErorrs(errors)
+        }else{
+            setClientErorrs("No Errors")
         }
-
         console.log("Form Data:", formData);
     };
 
     const handleAddField = (type) => {
         if (isViewMode) return;
         const newField = { type, title: "", placeholder: "", value: "" };
-        setFormData((prev) => ({
-            ...prev,
-            fields: [...prev.fields, newField],
-        }));
+        setFormData((prev) => ({ ...prev, fields: [...prev.fields, newField] }));
     };
 
     const handleDeleteField = (index) => {
@@ -63,7 +85,6 @@ export default function FormComponent({ mode }) {
     const handleUpdateField = (e) => {
         if (!editField) return;
         const { name, value } = e.target;
-
         setEditField((prev) => ({ ...prev, [name]: value }));
 
         setFormData((prev) => {
@@ -75,13 +96,20 @@ export default function FormComponent({ mode }) {
 
     const handleCreateOrUpdate = async () => {
         if (isViewMode) return;
+        clientValidations()
         try {
-            if (isEditMode) {
-                const response = await axios.put(`/api/forms/${id}`, formData);
-                console.log("Form updated", response.data);
-            } else {
-                const response = await axios.post("/api/forms", formData);
-                console.log("Form created", response.data);
+            if(Object.keys(errors).length !== 0){
+                setClientErorrs(errors)
+            }else{
+                if (isEditMode) {
+                    const response = await axios.put(`/api/forms/${id}`, formData);
+                    console.log("Form updated", response.data);
+                    navigate("/");
+                } else {
+                    const response = await axios.post("/api/forms", formData);
+                    console.log("Form created", response.data);
+                    navigate("/");
+                }
             }
         } catch (err) {
             console.log(err);
@@ -89,30 +117,34 @@ export default function FormComponent({ mode }) {
     };
 
     return (
-        <>
-            <h1>{isEditMode ? "Edit Form" : isViewMode ? "View Form" : "Create New Form"}</h1>
-            <div>
-                <form onSubmit={handleSubmit}>
-                    {/* Editable Form Name */}
+        <div className="flex gap-8 p-6">
+            <div className="w-2/3 bg-white shadow-md p-6 rounded-lg">
+                <h1 className="text-xl font-bold mb-4">
+                    {isEditMode ? "Edit Form" : isViewMode ? "View Form" : "Create New Form"}
+                </h1>
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
                         name="name"
                         value={formData.name}
                         placeholder="Enter form name"
+                        className="w-full p-2 border rounded-md"
                         onChange={(e) =>
                             !isViewMode && setFormData((prev) => ({ ...prev, name: e.target.value }))
                         }
                         readOnly={isViewMode}
                     />
+                    {clientErrors && <p className="text-red-500 text-xs">{clientErrors.name}</p>}
 
                     {formData.fields.length > 0 &&
                         formData.fields.map((ele, index) => (
-                            <div key={index}>
-                                <label>{ele.title || "Title"}</label>
+                            <div key={index} className="flex gap-4 items-center bg-gray-100 p-3 rounded-md">
+                                <label className="w-1/4 text-gray-700">{ele.title}</label>
                                 <input
                                     type={ele.type}
                                     placeholder={ele.placeholder || ""}
                                     value={ele.value || ""}
+                                    className="flex-grow p-2 border rounded-md"
                                     onChange={(e) => {
                                         const updatedFields = [...formData.fields];
                                         updatedFields[index] = { ...updatedFields[index], value: e.target.value };
@@ -120,59 +152,63 @@ export default function FormComponent({ mode }) {
                                     }}
                                 />
                                 {!isViewMode && (
-                                    <>
-                                        <button type="button" onClick={() => handleEditField(ele, index)}>Edit</button>
-                                        <button type="button" onClick={() => handleDeleteField(index)}>Delete</button>
-                                    </>
+                                    <div className="flex gap-2">
+                                        <button type="button" className="px-3 py-1 bg-blue-500 text-white" onClick={() => handleEditField(ele, index)}>Edit</button>
+                                        <button type="button" className="px-3 py-1 bg-red-500 text-white" onClick={() => handleDeleteField(index)}>Delete</button>
+                                    </div>
                                 )}
+                                {clientErrors && clientErrors[`value${index}`] && <p className="text-red-500">{clientErrors[`value${index}`]}</p>}
                             </div>
                         ))
-                        
                     }
 
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="px-2 bg-green-500 text-white cursor-pointer" />
                 </form>
 
                 {/* Add Input Button (Hidden in View Mode) */}
                 {!isViewMode && (
-                    <>
+                    <div className="mt-4">
                         {!openInputs ? (
-                            <button onClick={() => setOpenInputs(true)}>Add input</button>
+                            <button className="px-2 bg-gray-600 text-white" onClick={() => setOpenInputs(true)}>Add input</button>
                         ) : (
-                            <div>
-                                <button onClick={() => setOpenInputs(false)}>Close inputs</button>
+                            <div className="mt-2">
+                                <button className="px-2 bg-red-500 text-white" onClick={() => setOpenInputs(false)}>Close inputs</button>
                                 <InputButton onClick={handleAddField} />
                             </div>
                         )}
 
-                        <button onClick={handleCreateOrUpdate}>
+                        <button className="px-2 bg-blue-600 text-white ml-2" onClick={handleCreateOrUpdate}>
                             {isEditMode ? "Update Form" : "Create Form"}
                         </button>
-                    </>
+                    </div>
                 )}
             </div>
 
-            {/* Edit Field Section (Hidden in View Mode) */}
+            {/* Edit Field Section (Right Side) */}
             {!isViewMode && editField && (
-                <div>
-                    <h2>Edit Field</h2>
-                    <input
-                        type="text"
-                        name="title"
-                        value={editField.title}
-                        placeholder="Edit title"
-                        onChange={handleUpdateField}
-                    />
-                    <input
-                        type="text"
-                        name="placeholder"
-                        value={editField.placeholder}
-                        placeholder="Edit placeholder"
-                        onChange={handleUpdateField}
-                    />
+                <div className="w-1/3 bg-gray-100 p-6 shadow-md rounded-lg">
+                    <h2 className="text-lg font-semibold mb-4">Edit Field</h2>
+                    <div className="space-y-3">
+                        <input
+                            type="text"
+                            name="title"
+                            value={editField.title}
+                            placeholder="Edit title"
+                            className="w-full p-2 border"
+                            onChange={handleUpdateField}
+                        />
+                        <input
+                            type="text"
+                            name="placeholder"
+                            value={editField.placeholder}
+                            placeholder="Edit placeholder"
+                            className="w-full p-2 border"
+                            onChange={handleUpdateField}
+                        />
+                    </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 
@@ -180,9 +216,9 @@ const InputButton = ({ onClick }) => {
     const inputTypes = ["text", "number", "email", "password", "date"];
 
     return (
-        <div>
+        <div className="m-2 ml-48 flex flex-wrap gap-2">
             {inputTypes.map((type) => (
-                <button key={type} onClick={() => onClick(type)}>
+                <button key={type} className="px-2 bg-green-800 text-white rounded-md" onClick={() => onClick(type)}>
                     {type}
                 </button>
             ))}

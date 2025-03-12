@@ -15,6 +15,7 @@ app.post('/api/forms', formCntlr.create)
 app.get('/api/forms/:id', formCntlr.singleForm)
 app.get('/api/forms', formCntlr.getAllForms)
 app.put('/api/forms/:id', formCntlr.update)
+app.delete('/api/forms/:id', formCntlr.delete)
 
 app.listen(process.env.PORT, ()=>{
     console.log('server is running')
