@@ -26,16 +26,19 @@ export default function FormComponent({ mode }) {
     }, [id, mode]);
 
     const errors = {}
-    const clientValidations = ()=>{
-        if(formData.name.trim().length === 0){
-            errors.name = 'Form name is required'
+    const clientValidations = () => {
+        errors.name = formData.name.trim().length === 0 ? "Form name is required" : "";
+    
+        if (formData.fields.length === 0) {
+            errors.fields = "At least one field is required";
         }
+    
         formData.fields.forEach((ele, i) => {
             if (ele.title.trim().length === 0) {
                 errors[`title${i}`] = "Title is required";
             }
         });
-    }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -50,7 +53,7 @@ export default function FormComponent({ mode }) {
     };
 
     const handleAddField = (type) => {
-        if (isViewMode) return;
+        if (isViewMode || formData.fields.length >= 20) return;
         const newField = { type, title: "", placeholder: "", value: "" };
         setFormData((prev) => ({ ...prev, fields: [...prev.fields, newField] }));
     };
@@ -87,6 +90,7 @@ export default function FormComponent({ mode }) {
         try {
             if(Object.keys(errors).length !== 0){
                 setClientErorrs(errors)
+                return
             }else{
                 if (isEditMode) {
                     const response = await axios.put(`/api/forms/${id}`, formData);

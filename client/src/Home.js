@@ -4,16 +4,20 @@ import axios from "./config/axios";
 
 export default function Home() {
     const [forms, setForms] = useState([]);
+    const [loading, setLoading] = useState(true); // Loading state
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchForms = async () => {
+            setLoading(true); // Start loading
             try {
                 const response = await axios.get("/api/forms");
                 console.log("API Response:", response.data);
-                setForms(Array.isArray(response.data) ? response.data : []); 
+                setForms(Array.isArray(response.data) ? response.data : []);
             } catch (err) {
                 console.error("Error fetching forms:", err);
+            } finally {
+                setLoading(false); // Stop loading
             }
         };
         fetchForms();
@@ -42,10 +46,13 @@ export default function Home() {
             <hr className="w-2/3 my-6 border-white" />
             <div className="w-full max-w-3xl bg-white text-black p-6 shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4 text-center">All Forms</h2>
-              {Array.isArray(forms) && forms.length > 0 ? 
- (
+
+                {/* Show loading spinner while fetching data */}
+                {loading ? (
+                    <p className="text-gray-600 text-center">Loading...</p>
+                ) : Array.isArray(forms) && forms.length > 0 ? (
                     <div className="space-y-4">
-                        {forms?.map((form) => (
+                        {forms.map((form) => (
                             <div key={form._id} className="p-4 bg-gray-100 flex items-center justify-between">
                                 <h3 className="text-lg font-semibold">{form.name}</h3>
                                 <div className="space-x-3">
@@ -57,13 +64,13 @@ export default function Home() {
                                     </button>
                                     <button
                                         onClick={() => navigate(`/form/edit/${form._id}`)}
-                                        className="bg-green-500 text-white px-2 py-1  hover:bg-green-600 transition"
+                                        className="bg-green-500 text-white px-2 py-1 hover:bg-green-600 transition"
                                     >
                                         Edit
                                     </button>
                                     <button
                                         onClick={() => handleDeleteForm(form._id)}
-                                        className="bg-red-500 text-white px-2 py-1  hover:bg-red-600 transition"
+                                        className="bg-red-500 text-white px-2 py-1 hover:bg-red-600 transition"
                                     >
                                         Delete
                                     </button>
