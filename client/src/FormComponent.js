@@ -92,7 +92,6 @@ export default function FormComponent({ mode }) {
         try {
             if(Object.keys(errors).length !== 0){
                 setClientErorrs(errors)
-                return
             }else{
                 if (isEditMode) {
                     const response = await axios.put(`/api/forms/${id}`, formData);
