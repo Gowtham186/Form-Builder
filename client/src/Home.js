@@ -42,9 +42,9 @@ export default function Home() {
             <hr className="w-2/3 my-6 border-white" />
             <div className="w-full max-w-3xl bg-white text-black p-6 shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4 text-center">All Forms</h2>
-                {forms.length > 0 ? (
+                {forms?.length > 0 ? (
                     <div className="space-y-4">
-                        {forms.map((form) => (
+                        {forms?.map((form) => (
                             <div key={form._id} className="p-4 bg-gray-100 flex items-center justify-between">
                                 <h3 className="text-lg font-semibold">{form.name}</h3>
                                 <div className="space-x-3">
