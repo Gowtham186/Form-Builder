@@ -85,6 +85,7 @@ export default function FormComponent({ mode }) {
         });
     };
 
+    console.log('errors', errors)
     const handleCreateOrUpdate = async () => {
         console.log(formData)
         if (isViewMode) return;
@@ -95,6 +96,7 @@ export default function FormComponent({ mode }) {
                 setClientErorrs(errors)
                 console.log('errors', errors)
             }else{
+                setClientErorrs(null)
                 if (isEditMode) {
                     console.log('edit')
                     const response = await axios.put(`/api/forms/${id}`, formData);
