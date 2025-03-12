@@ -10,8 +10,8 @@ export default function Home() {
         const fetchForms = async () => {
             try {
                 const response = await axios.get("/api/forms");
-                console.log(response.data);
-                setForms(response.data);
+                console.log("API Response:", response.data);
+                setForms(Array.isArray(response.data) ? response.data : []); 
             } catch (err) {
                 console.error("Error fetching forms:", err);
             }
@@ -42,7 +42,8 @@ export default function Home() {
             <hr className="w-2/3 my-6 border-white" />
             <div className="w-full max-w-3xl bg-white text-black p-6 shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4 text-center">All Forms</h2>
-                {forms?.length > 0 ? (
+              {Array.isArray(forms) && forms.length > 0 ? 
+ (
                     <div className="space-y-4">
                         {forms?.map((form) => (
                             <div key={form._id} className="p-4 bg-gray-100 flex items-center justify-between">
