@@ -28,8 +28,9 @@ export default function FormComponent({ mode }) {
 
     const errors = {}
     const clientValidations = () => {
-        errors.name = formData.name.trim().length === 0 ? "Form name is required" : "";
-    
+        if(formData.name.trim().length === 0){
+            errors.name =  "Form name is required"
+        }    
         if (formData.fields.length === 0) {
             errors.fields = "At least one field is required";
         }
