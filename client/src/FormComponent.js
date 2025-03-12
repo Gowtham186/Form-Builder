@@ -106,7 +106,7 @@ export default function FormComponent({ mode }) {
         } catch (err) {
             console.log(err);
         }finally{
-            setLoading(true);
+            setLoading(false);
         }
     };
 
