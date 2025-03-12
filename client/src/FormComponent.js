@@ -26,20 +26,26 @@ export default function FormComponent({ mode }) {
         }
     }, [id, mode]);
 
-    const errors = {}
     const clientValidations = () => {
-        errors.name = formData.name.trim().length === 0 ? "Form name is required" : "";
+        let errors = {};
+    
+        if (!formData.name.trim()) {
+            errors.name = "Form name is required";
+        }
     
         if (formData.fields.length === 0) {
             errors.fields = "At least one field is required";
         }
     
         formData.fields.forEach((ele, i) => {
-            if (ele.title.trim().length === 0) {
+            if (!ele.title.trim()) {
                 errors[`title${i}`] = "Title is required";
             }
         });
+    
+        return errors; 
     };
+    
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -86,33 +92,35 @@ export default function FormComponent({ mode }) {
     };
 
     const handleCreateOrUpdate = async () => {
-        console.log(formData)
+        console.log(formData);
         if (isViewMode) return;
-        clientValidations()
+    
+        const validationErrors = clientValidations(); 
+        if (Object.keys(validationErrors).length !== 0) {
+            setClientErorrs(validationErrors);
+            console.log("Validation errors:", validationErrors);
+            return; 
+        }
+    
         setLoading(true);
         try {
-            if(Object.keys(errors).length !== 0){
-                setClientErorrs(errors)
-                console.log('errors')
-            }else{
-                if (isEditMode) {
-                    console.log('edit')
-                    const response = await axios.put(`/api/forms/${id}`, formData);
-                    console.log("Form updated", response.data);
-                    navigate("/");
-                } else {
-                    console.log('create')
-                    const response = await axios.post("/api/forms", formData);
-                    console.log("Form created", response.data);
-                    navigate("/");
-                }
+            if (isEditMode) {
+                console.log("edit");
+                const response = await axios.put(`/api/forms/${id}`, formData);
+                console.log("Form updated", response.data);
+            } else {
+                console.log("create");
+                const response = await axios.post("/api/forms", formData);
+                console.log("Form created", response.data);
             }
+            navigate("/");
         } catch (err) {
-            console.log(err);
-        }finally{
+            console.error("Error while submitting form:", err);
+        } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="flex gap-8 p-6">
