@@ -86,6 +86,7 @@ export default function FormComponent({ mode }) {
     };
 
     const handleCreateOrUpdate = async () => {
+        console.log(formData)
         if (isViewMode) return;
         clientValidations()
         setLoading(true);
