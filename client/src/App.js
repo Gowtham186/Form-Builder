@@ -13,7 +13,6 @@ function App() {
         <Route path='/form/create' element={<FormComponent mode="create"/>}/>
         <Route path='/form/edit/:id' element={<FormComponent mode="edit"/>}/>
         <Route path='/form/:id' element={<FormComponent mode="view"/>}/>
-        <Route path='*' />
       </Routes>
     </div>
   );

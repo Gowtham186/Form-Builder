@@ -8,6 +8,7 @@ export default function FormComponent({ mode }) {
         name: "",
         fields: [],
     });
+    const [loading, setLoading] = useState(false);
 
     const isViewMode = mode === "view";
     const isEditMode = mode === "edit";
@@ -87,6 +88,7 @@ export default function FormComponent({ mode }) {
     const handleCreateOrUpdate = async () => {
         if (isViewMode) return;
         clientValidations()
+        setLoading(true);
         try {
             if(Object.keys(errors).length !== 0){
                 setClientErorrs(errors)
@@ -104,6 +106,8 @@ export default function FormComponent({ mode }) {
             }
         } catch (err) {
             console.log(err);
+        }finally{
+            setLoading(true);
         }
     };
 
@@ -113,6 +117,7 @@ export default function FormComponent({ mode }) {
                 <h1 className="text-xl font-bold mb-4">
                     {isEditMode ? "Edit Form" : isViewMode ? "View Form" : "Create New Form"}
                 </h1>
+                {loading && <p className="text-blue-500">Loading...</p>}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
@@ -126,6 +131,7 @@ export default function FormComponent({ mode }) {
                         readOnly={isViewMode}
                     />
                     {clientErrors && <p className="text-red-500 text-xs">{clientErrors.name}</p>}
+                    {clientErrors && <p className="text-red-500 text-xs">{clientErrors.fields}</p>}
 
                     {formData.fields.length > 0 &&
                         formData.fields.map((ele, index) => (
@@ -156,7 +162,6 @@ export default function FormComponent({ mode }) {
                     <input type="submit" value="Submit" className="px-2 bg-green-500 text-white cursor-pointer" />
                 </form>
 
-                {/* Add Input Button (Hidden in View Mode) */}
                 {!isViewMode && (
                     <div className="mt-4">
                         {!openInputs ? (
@@ -175,7 +180,6 @@ export default function FormComponent({ mode }) {
                 )}
             </div>
 
-            {/* Edit Field Section (Right Side) */}
             {!isViewMode && editField && (
                 <div className="w-1/3 bg-gray-100 p-6 shadow-md rounded-lg">
                     <h2 className="text-lg font-semibold mb-4">Edit Field</h2>

@@ -4,12 +4,12 @@ import axios from "./config/axios";
 
 export default function Home() {
     const [forms, setForms] = useState([]);
-    const [loading, setLoading] = useState(true); // Loading state
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchForms = async () => {
-            setLoading(true); // Start loading
+            setLoading(true); 
             try {
                 const response = await axios.get("/api/forms");
                 console.log("API Response:", response.data);
@@ -17,7 +17,7 @@ export default function Home() {
             } catch (err) {
                 console.error("Error fetching forms:", err);
             } finally {
-                setLoading(false); // Stop loading
+                setLoading(false); 
             }
         };
         fetchForms();
@@ -47,7 +47,6 @@ export default function Home() {
             <div className="w-full max-w-3xl bg-white text-black p-6 shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4 text-center">All Forms</h2>
 
-                {/* Show loading spinner while fetching data */}
                 {loading ? (
                     <p className="text-gray-600 text-center">Loading...</p>
                 ) : Array.isArray(forms) && forms.length > 0 ? (
