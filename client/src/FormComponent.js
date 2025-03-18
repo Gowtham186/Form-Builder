@@ -156,7 +156,7 @@ export default function FormComponent({ mode }) {
                                 />
                                 {!isViewMode && (
                                     <div className="flex gap-2">
-                                        {/* <button type="button" className="px-3 py-1 bg-blue-500 text-white" onClick={() => handleEditField(ele, index)}>Edit</button> */}
+                                        <button type="button" className="px-3 py-1 bg-blue-500 text-white" onClick={() => handleEditField(ele, index)}>Edit</button>
                                         <button type="button" className="px-3 py-1 bg-red-500 text-white" onClick={() => handleDeleteField(index)}>Delete</button>
                                     </div>
                                 )}
